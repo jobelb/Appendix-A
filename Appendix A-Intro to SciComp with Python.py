@@ -5,7 +5,7 @@ Created on Fri Jun  1 16:45:13 2018
 Summarized Notes from Appendix A
 @author: jobelb
 """
-
+#to run just one line of command, hit "ctrl + return" rather hitting F5
 print "hello world"
 
 
@@ -349,5 +349,280 @@ OUT: array([5, 6, 7])
       
     
    # next p.492
-      
 
+'''
+Update June 6, 2018
+'''
+#A.5.5 Structured Arrays
+#Numpy contains structured ararys - store compound dara types
+import numpy as np
+print np.arange(3) + 5
+print np.ones((3,3)) + np.arange(3)
+print np.arange(3).reshape((3,1)) + np.arange(3)
+
+#store all in one array - each object has integer ID + 5-char string name
+dtype = [('ID', int), ('name', (str, 5)), ('value', float)]
+data = np.zeros(3, dtype=dtype)
+print data
+
+#Fileds of array can be thought of as "Columns"
+data['ID'] = [154, 207, 669]
+data['name'] = ['obj_1', 'obj_2', 'obj_3']
+data ['value'] = [0.1 , 0.2 , 0.3]
+print data[0]
+print data[2]
+print data['value']
+
+#A.6 Visualitzation with Matplotlib - basic plotting examples "%pylab"
+
+#%pylab
+import numpy as np
+import matplotlib.pyplot as plt
+
+#%matplotlab
+#Simple Sinusoid Plot
+x = np.linspace(0, 2 * np.pi, 1000)   #1000 valuess from 0 to 2pi
+y = np.sin(x)
+ax = plt.axes()
+ax.plot(x, y)
+ax.set_xlim(0, 2 * np.pi)   #set x limits
+ax.set_ylim(-1.3, 1.3)   #set y limits
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_title('Simple Sinusoid Plot')
+
+#Simple Sinusoid Plot + Error bar plot type - use plt.errorbar
+x_obs = 2 * np.pi * np.random.random(50)
+y_obs = np.sin(x_obs)
+y_obs += np.random.normal(0, 0.1, 50)   #add some error
+ax.errorbar(x_obs, y_obs, 0.1, fmt='o' , color='black')
+
+#Histogram Plotting - executed through ax.hist()
+fig = plt.figure()  #create a new fig window
+ax = plt.axes()   #create new axes
+x = np.random.normal(size=1000)
+ax.hist(x, bins=50)
+ax.set_xlabel('x')
+ax.set_ylabel('N(x)')
+'''
+use "plt.hist?" on iPython to control appearance of histogram
+Other plots: 
+    plt.scatter = create scatter plot
+    plt.imshow = display images
+    plt.contour and plt.contourf =  disp contour plots
+    plt.hexbin = craete hexagonall tessellations
+    plt.fill and plt.fill_between = draw filled regions
+    plt.subplot and plt.axes = create  multiple subplots
+go to astroml.org for more source codes
+'''
+#Overview of Useful NumPy/SciPy Modules - collection of routines & tools
+#A.7.1 Reading and Writing Data
+#use np.savetxt( ) to save an array to an ASCII file
+#use np.loadtxt( ) to load texr files
+
+import numpy as np
+x = np.random.random((10, 3))
+np.savetxt('x.txt', x)
+y = np.loadtxt('x.txt')
+print np.all(x == y)
+
+# np.genfromtxt - customziable text loader
+# np.save and np.load - written to binary files for single arrays
+# np.savez - to store multiple arrays in a single zipped file
+
+#A.7.2 Pseudorandom Number Generation
+np.random.seed(0)
+print np.random.random(4)   #uniform between 0 and 1
+print np.random.normal(loc=0, scale=1, size=4)  #standard norm
+print np.random.randint(low=0, high=10, size=4)  #random integers
+
+#np.random to see more
+#scipy.stats - generates random variables using the distributions submodule in it
+from scipy.stats import distributions
+print distributions.poisson.rvs(10, size=4)
+# scipy.distributions? for more info
+
+#A.7.3 Linear Algebra
+#basic dot (i.e., matrix-vector) product is implemented in NumPy
+M = np.arange(9).reshape((3,3))
+print M
+
+x = np.arange(1, 4)  #[1, 2, 3]
+print np.dot(M, x)
+
+#numpy.linalg and scipy.linalg = more common lin alg operations available
+# numpy.linalg? or scipy.linalg? in IPython for more info
+
+'''
+#A.7.4 Fast Fourier Transforms -an imp. algorithm in many aspects of data 
+  analysis. Routines are available in NumpY (numpy.fft submodule) and
+SciPy (scipy.fftpack submodule) <-SciPy has more options to control the results
+'''
+x = np.ones(4)
+print np.fft.fft(x)   #forward transform "fft()"
+print np.fft.ifft([ 4.+0.j,  0.+0.j,  0.+0.j,  0.+0.j]) #inverse "ifft()"
+#scipy.fftpack? or numpy.fft? for more info
+
+#A.7.5 Numerical Integration
+#QUADPACK - an optimized numerical integration package written in Fortran, to
+#integrate function sinx from 0 to (pi symbol) 
+from scipy import integrate
+result, error = integrate.quad(np.sin, 0, np.pi)
+print result, error
+# integrate? in IPython for more info
+
+#A.7.6 Optimization
+#use scipy.optimize
+#ex: find the min of a simple function usinnng "fmin"
+from scipy import optimize
+def simple_quadratic(x):
+    return x ** 2 + x
+print optimize.fmin(simple_quadratic, x0=100)
+
+'''
+#A.7.7 Interpolation
+# use scipy.interpolate to implement, from simple linear & poly interpolation
+# to more sophisticated spline-based techniques
+Spline fit has interpolated the sampled pts to create a smooth curve.
+Additional Options: adjustment of smoothing factors, number of knots, 
+weighting of points, spline degre, etc.
+
+use interpolate.interp1d for Linear and Polu interpolation
+type interpolate? in IPython for more info
+
+'''
+#%pylab
+from scipy import interpolate
+fig = plt.figure()
+x = np.linspace(0, 16, 30)    #coarse grid: 30 pts
+y = np.sin(x)
+x2 = np.linspace(0, 16, 1000)  #fine grid: 1000 pts
+spl = interpolate.UnivariateSpline(x, y, s=0)
+ax = plt.axes()
+ax.plot(x, y, 'o')  # 'o' means draw pts as circles
+ax.plot(x2, spl(x2), '-')   # '-' means draw a line
+
+'''
+#A.7.8 Other Submodels - can be explored ussing online doc. and IPython's help
+scipy.spatial: distance and spatial functions, nearest neighbor, Delaunay
+tessellation
+
+scipy.sparse: sparse matrix storage, sparse linear algebra, sparse solvers,
+sparse graph traversal
+
+scipy.stats: common statistical functions and distributions
+
+scipy.special: special functions (e.g., Airy functions, Bessel functions,
+orthogonal polynomials, gamma functions, and much more)
+
+scipy.constants: numerical and dimensional constants
+'''
+#A.8 Efficient Coding with Python and NumPy
+#below are few common examples made using Python and NumPy, and solutions to
+# improve computation time
+# use %timeit magic command, provides quick benchmark for Python execution
+'''
+#A.8.1 Data Structures
+Python list object - good for small sequences for faster exec.
+'''
+#Example
+L = range(10000000)  # a large list
+#%timeit sum(L)   #1 loop, best of 3: 513 ms per loop = Slow
+                    #only works when executed on IPython console?
+
+import numpy as np     #better exec time when using NumPy rather than the
+x = np.array(L, dtype=float)           # built-in Python list
+#%timeit np.sum(x)   #100 loops, best of 3: 4.63 ms per loop-faster for NumPy
+
+'''
+GUIDELINE 1: Store data in NumPy arrays, not Python lists when there is a 
+    sequence/list of data larger than a few dozen items. Store and manipulate
+    as a NumPy array.
+
+
+#A.8.2 Loops
+If an algorithm seemms to require loops, it's better in Python to implement it
+using VECTORIZED oprations in NumPy (ufuncs in A.5.4)
+'''
+# Example
+import numpy as np
+x = np.random.random(10000000)
+def loop_add_one(x):
+    for i in range (len(x)):
+        x[i] += 1
+        
+#%timeit loop_add_one(x)   #1 loop, best of 3: 3.15 s per loop - longer
+
+import numpy as np
+x = np.random.random(10000000)       
+def vectorized_add_one(x):
+    x += 1
+#%timeit vectorized_add_one(x)  #100 loops,best of 3: 7.83 ms per loop - faster
+
+'''
+Using VECTORIZED oprations (enabled by NumPy's ufuncs) for repeated operations 
+leads to much faster code.
+
+GUIDELINE 2: Avoid large loops in favor of vectorized operations. 
+Vectorized methods within NumPy will be a better choice.
+'''
+
+#A.8.3 Slicing, Masks, and Fancy Indexing
+#Slicing (done above) generally very fast, preferable to looping through 
+#the arrays. Below is an ex. of a slicing operation:
+x[:len(x) / 2] = x[len(x) / 2:]
+#example - we have an array and we want every value >0.5 to be changed to
+#999. Someone MIGHT DO THIS. (This is longer..read on for a faster method)
+x[:len(x) / 2] = x[len(x) / 2:]
+def check_vals(x):
+    for i in range (len(x)):
+        if x[i] > 0.5:
+            x[i] = 999
+#%timeit check_vals(x)  #1 loop, best of 3: 1.76 s per loop
+            
+#same operation can be performed FASTER using a boolean mask:
+x[:len(x) / 2] = x[len(x) / 2:]
+#%timeit x[(x > 0.5)] = 999   # vectorized version 
+              #10 loops, best of 3: 69.3 ms per loop
+              
+#Masks can be combined using the bitwise operators & for AND, | for OR, ~ for
+#NOT, and ^ for XOR. Example someone might write:
+#x[(x < 0.1) | (x > 0.5)] = 999  be careful on using parenthesis
+             # around boolean methods
+
+#Fancy Indexing = indexing with lists
+#example - the longer way
+import numpy as np
+X = np.random.random((10000000, 3))
+def get_random_rows(X):
+    X_new = np.empty(X.shape)
+    for i in range(X_new.shape[0]):
+        X_new[i] = X[np.random.randint(\
+                X.shape[0])]
+    return X_new
+
+#Fancy Indexing can SPEED things up by generating the array of indices
+   # all at once and vectoriziing the operation
+import numpy as np
+X = np.random.random((10000000, 3))       #NOTE: Fancy Indexing is much slower 
+def get_random_rows_fast(X):               #than slicing for eq operations
+    ind = np.random.randint(0, X.shape[0], #Remember ufuncs in A.5.4
+                            X.shape[0])
+    return X[ind]
+'''
+#NOTE: Fancy Indexing is much slower than slicing for eq operations
+#Remember ufuncs in A.5.4
+Most manipulation tasks can be accomplished w/o writing a loop.
+
+GUIDELINE 3: Use array Slicing, Masks, Fancy Indexing, and 
+    Broadcasting to Eliminate Looops
+
+NOTE: Python loops are slow, and NumPy array tricks can be used to
+sidestep this problem. Also, there are some algorithms for which loop
+elimination through vectorization is difficult or impossible.
+
+A.9 Some algorithms can be wrapped with Fortran, C, or C++ code for use
+within Python. Packages like NumPy, SciPy and Skit-leaarn use seveeral of these
+tools both to implement efficient algorithms and make se of lib packages
+written in Fortran, C,, and C++
+'''
